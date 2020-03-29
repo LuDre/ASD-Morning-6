@@ -1,5 +1,6 @@
 package app.controllers;
 
+import app.models.Instruction;
 import app.models.Recipe;
 import app.models.RecipeManager;
 import javafx.collections.FXCollections;
@@ -16,6 +17,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 import java.net.URL;
@@ -105,25 +107,49 @@ public class MainController implements Initializable {
         lblMessage.setText("SUCCESS --> " + msg);
     }
 
+    private void updateView() {
+        fillListViews();
+        setInfoMessage("Data updated");
+    }
+
     public void onActionbtnAddRecipe(ActionEvent actionEvent) {
         setInfoMessage("ADD window is open!");
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../../resources/views/addRecipe.fxml"));
-        Parent root1 = null;
+        Parent rootAddView = null;
         try {
             AddRecipeController addRecipeController = new AddRecipeController(1800);
 
             fxmlLoader.setController(addRecipeController);
-            root1 = (Parent) fxmlLoader.load();
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setTitle("ADD RECIPE");
-            stage.setResizable(false);
-            stage.setScene(new Scene(root1));
-            stage.show();
+            rootAddView = (Parent) fxmlLoader.load();
+            Stage stageAddView = new Stage();
+            stageAddView.initModality(Modality.APPLICATION_MODAL);
+            stageAddView.setTitle("ADD RECIPE");
+            stageAddView.setResizable(false);
+            stageAddView.setScene(new Scene(rootAddView));
+
+            stageAddView.setOnHidden((WindowEvent event1) -> {
+                updateView();
+            });
+
+            stageAddView.show();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+    }
+
+    private void printData() {
+        for (Recipe r : RecipeManager.getInstance().getRecipes()) {
+            System.out.println("====== [" + r.getName() + "] ======");
+            System.out.println(r);
+
+            for (Instruction i : r.getCookInstructions()) {
+                System.out.println(i);
+            }
+
+            System.out.println("=======================");
+        }
     }
 }
