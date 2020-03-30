@@ -1,10 +1,13 @@
 package app.controllers;
 
+import app.enums.MealType;
 import app.models.Instruction;
 import app.models.Recipe;
 import app.models.RecipeManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,6 +21,7 @@ import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.Duration;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
@@ -33,8 +37,20 @@ public class MainController implements Initializable {
     @FXML
     private ListView listFavRecipes;
 
+    @FXML
+    private TextField txtSearchAll;
+
+    @FXML
+    private TextField txtSearchFav;
+
     private ObservableList<Recipe> recipeAllObservableList;
     private ObservableList<Recipe> recipeFavObservableList;
+
+    private FilteredList<Recipe> filteredFavRecipes;
+    private FilteredList<Recipe> filteredAllRecipes;
+
+    private SortedList<Recipe> sortedAllRecipes;
+    private SortedList<Recipe> sortedFavRecipes;
 
     private FXMLLoader mLLoader;
 
@@ -48,22 +64,80 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         initViewElements();
-        fillListViews();
-        setListViewContextMenu(listAllRecipes);
-        setListViewContextMenu(listFavRecipes);
     }
 
     private void initViewElements() {
         setInfoMessage("Welcome to COOK! - " + RecipeManager.getInstance().getRecipes().size() + " Recipes loaded");
+        setListViewContextMenu(listAllRecipes);
+        setListViewContextMenu(listFavRecipes);
+        fillListViews();
+        addSearchListener();
+    }
+
+    private void addSearchListener() {
+        filteredAllRecipes = new FilteredList<Recipe>(FXCollections.<Recipe>observableArrayList(RecipeManager.getInstance().getRecipes()));
+
+        txtSearchAll.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredAllRecipes.setPredicate(recipe ->{
+
+                if(newValue == null || newValue.isEmpty()){
+                    return true;
+                }
+
+                String lowerCaseFilter = newValue.toLowerCase();
+
+                if(recipe.getName().toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                } else if(recipe.getDescription().toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                } else if (recipe.getPrepTime().toString().contains(lowerCaseFilter)) {
+                    return true;
+                } else if (recipe.getCookTime().toString().contains(lowerCaseFilter)) {
+                    return true;
+                } else if (recipe.getType().toString().toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                }
+
+                return false;
+            });
+        });
+
+        sortedAllRecipes = new SortedList<>(filteredAllRecipes);
+        listAllRecipes.setItems(sortedAllRecipes);
+
+        FilteredList<Recipe> filteredFavRecipes = new FilteredList<Recipe>(FXCollections.<Recipe>observableArrayList(RecipeManager.getInstance().getFavRecipes()));
+
+        txtSearchFav.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredFavRecipes.setPredicate(recipe ->{
+
+                if(newValue == null || newValue.isEmpty()){
+                    return true;
+                }
+
+                String lowerCaseFilter = newValue.toLowerCase();
+
+                if(recipe.getName().toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                } else if(recipe.getDescription().toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                } else if (recipe.getPrepTime().toString().contains(lowerCaseFilter)) {
+                    return true;
+                } else if (recipe.getCookTime().toString().contains(lowerCaseFilter)) {
+                    return true;
+                } else if (recipe.getType().toString().toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                }
+
+                return false;
+            });
+        });
+
+        sortedFavRecipes = new SortedList<>(filteredFavRecipes);
+        listFavRecipes.setItems(sortedFavRecipes);
     }
 
     private void fillListViews() {
-        recipeAllObservableList = FXCollections.<Recipe>observableArrayList(RecipeManager.getInstance().getRecipes());
-        listAllRecipes.setItems(recipeAllObservableList);
         listAllRecipes.setCellFactory(recipeListView -> new RecipeListViewCell());
-
-        recipeFavObservableList = FXCollections.<Recipe>observableArrayList(RecipeManager.getInstance().getFavRecipes());
-        listFavRecipes.setItems(recipeFavObservableList);
         listFavRecipes.setCellFactory(recipeListView -> new RecipeListViewCell());
     }
 
@@ -104,7 +178,7 @@ public class MainController implements Initializable {
     }
 
     private void updateView() {
-        fillListViews();
+        addSearchListener();    //TODO maybe other solution than adding the listener again :-)
         setSuccessMessage("Data updated");
     }
 
