@@ -44,7 +44,7 @@ public class Main extends Application {
         r2.addPhoto("mealpic_2_2.jpg");
 
 
-        Recipe r3 = new Recipe("Humusaufstrich", "500g Kompost, 2 TL Öl", MealType.VEGAN, Duration.ofMinutes(20000), Duration.ofMinutes(20));
+        Recipe r3 = new Recipe("Humusaufstrich", "500g Kompost, 2 TL Öl", MealType.VEGAN, Duration.ofMinutes(200), Duration.ofMinutes(20));
         r3.addPhoto("food.png");
 
         Instruction i3 = new Instruction("Komposter entleeren", "Mistgabel holen und loslegen!", "cookinstruction_3_1");

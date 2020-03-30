@@ -53,4 +53,19 @@ public class RecipeManager implements Serializable {
     public void deleteRecipe(Recipe r){
         this.recipes.remove(r);
     }
+
+    public void updateRecipe(int id, Recipe newRecipe) {
+        for (Recipe r : this.recipes) {
+            if (r.getId() == id) {
+                r.setName(newRecipe.getName());
+                r.setDescription(newRecipe.getDescription());
+                r.setType(newRecipe.getType());
+                r.setPrepTime(newRecipe.getPrepTime());
+                r.setCookTime(newRecipe.getCookTime());
+                r.setFavourite(newRecipe.isFavourite());
+                r.setGuideEnabled(newRecipe.isGuideEnabled());
+            }
+        }
+        //TODO photos update
+    }
 }

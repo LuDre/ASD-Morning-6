@@ -12,11 +12,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 
 import java.io.IOException;
@@ -77,8 +74,7 @@ public class MainController implements Initializable {
         MenuItem deleteItem = new MenuItem("Delete");
 
         editItem.setOnAction((event) -> {
-            Recipe r = (Recipe) lv.getSelectionModel().getSelectedItem();
-            //TODO implement and call edit
+            openEditView((Recipe) lv.getSelectionModel().getSelectedItem());
         });
 
         deleteItem.setOnAction((event) -> {
@@ -109,13 +105,13 @@ public class MainController implements Initializable {
 
     private void updateView() {
         fillListViews();
-        setInfoMessage("Data updated");
+        setSuccessMessage("Data updated");
     }
 
     public void onActionbtnAddRecipe(ActionEvent actionEvent) {
         setInfoMessage("ADD window is open!");
 
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../../resources/views/addRecipe.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../../resources/views/editRecipe.fxml"));
         Parent rootAddView = null;
         try {
             AddRecipeController addRecipeController = new AddRecipeController(1800);
@@ -137,7 +133,33 @@ public class MainController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    private void openEditView(Recipe r) {
+        setInfoMessage("EDIT window is open!");
+
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../../resources/views/editRecipe.fxml"));
+        Parent rootEditView = null;
+        try {
+            EditRecipeController editRecipeController = new EditRecipeController(r);
+
+            fxmlLoader.setController(editRecipeController);
+            rootEditView = (Parent) fxmlLoader.load();
+            Stage stageEditView = new Stage();
+            stageEditView.initModality(Modality.APPLICATION_MODAL);
+            stageEditView.setTitle("EDIT RECIPE");
+            stageEditView.setResizable(false);
+            stageEditView.setScene(new Scene(rootEditView));
+
+            stageEditView.setOnHidden((WindowEvent event1) -> {
+                updateView();
+            });
+
+            stageEditView.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void printData() {
