@@ -7,14 +7,20 @@ import app.models.RecipeManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.time.Duration;
 import java.util.ResourceBundle;
+import java.util.Vector;
 
 
 public class AddRecipeController implements Initializable {
@@ -49,17 +55,64 @@ public class AddRecipeController implements Initializable {
     @FXML
     private Button btnCancel;
 
-    private int param1;
+    @FXML
+    private ImageView imageViewAdd;
 
-    public AddRecipeController(int inparam1) {
-        this.param1 = inparam1;
-    }
+    @FXML
+    private Button btnPrevImage;
+
+    @FXML
+    private Button btnNextImage;
+
+    @FXML
+    private Button btnAddImage;
+
+    @FXML
+    private Button btnRemoveImage;
+
+    @FXML
+    private Label lblPicCount;
+
+    private Vector<String> imgVec;
+
+    public AddRecipeController() {}
 
     @FXML
     private void initialize() {}
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        setInfoMessage("Fill in the shown fields to add a new recipe!");
+
+        initBtnListener();
+        initMealTypeSpinner();
+
+        FileInputStream input = null;
+        try {
+            input = new FileInputStream("appdata/images/dummy.png");
+            Image tmpRecipeImage = new Image(input, imageViewAdd.getFitWidth(), imageViewAdd.getFitHeight(), false, true);
+            imageViewAdd.setImage(tmpRecipeImage);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        imgVec = new Vector<>();
+    }
+
+    private void initBtnListener() {
+        btnCancel.setOnAction(event -> { onActionBtnCancel(event); });
+        btnSave.setOnAction(event -> { onActionBtnSave(event); });
+        btnPrevImage.setOnAction(event -> { onActionBtnPrevImage(event); });
+        btnNextImage.setOnAction(event -> { onActionBtnNextImage(event); });
+        btnAddImage.setOnAction(event -> { onActionBtnAddImage(event); });
+        btnRemoveImage.setOnAction(event -> { onActionBtnRemoveImage(event); });
+    }
+
+    private void initMealTypeSpinner() {
+        ObservableList<MealType> mealTypes = FXCollections.observableArrayList(MealType.FISH, MealType.PORK, MealType.VEGAN, MealType.BEEF, MealType.CHICKEN, MealType.VEGETARIAN);
+        SpinnerValueFactory<MealType> valueFactory = new SpinnerValueFactory.ListSpinnerValueFactory<MealType>(mealTypes);
+        valueFactory.setValue(MealType.BEEF);
+        spinType.setValueFactory(valueFactory);
         setInfoMessage("Fill in the shown fields to add a new recipe!");
 
         initMealTypeSpinner();
@@ -113,5 +166,20 @@ public class AddRecipeController implements Initializable {
         Stage stage = (Stage) lblMessage.getScene().getWindow();
         stage.close();
     }
-}
 
+    public void onActionBtnPrevImage(ActionEvent actionEvent) {
+        //TODO
+    }
+
+    public void onActionBtnNextImage(ActionEvent actionEvent) {
+        //TODO
+    }
+
+    public void onActionBtnAddImage(ActionEvent actionEvent) {
+        //TODO
+    }
+
+    public void onActionBtnRemoveImage(ActionEvent actionEvent) {
+        //TODO
+    }
+}

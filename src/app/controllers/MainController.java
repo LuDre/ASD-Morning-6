@@ -19,6 +19,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+
 import java.io.IOException;
 import java.net.URL;
 import java.time.Duration;
@@ -188,7 +189,7 @@ public class MainController implements Initializable {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../../resources/views/editRecipe.fxml"));
         Parent rootAddView = null;
         try {
-            AddRecipeController addRecipeController = new AddRecipeController(1800);
+            AddRecipeController addRecipeController = new AddRecipeController();
 
             fxmlLoader.setController(addRecipeController);
             rootAddView = (Parent) fxmlLoader.load();
