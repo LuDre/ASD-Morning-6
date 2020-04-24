@@ -1,6 +1,9 @@
 package app.models;
 
+import app.enums.MealType;
+
 import java.io.Serializable;
+import java.util.UUID;
 import java.util.Vector;
 
 public class RecipeManager implements Serializable {
@@ -54,8 +57,7 @@ public class RecipeManager implements Serializable {
     public void deleteRecipe(Recipe r){
         this.recipes.remove(r);
     }
-
-    public void updateRecipe(int id, Recipe newRecipe) {
+    public void updateRecipe(UUID id, Recipe newRecipe) {
         for (Recipe r : this.recipes) {
             if (r.getId() == id) {
                 r.setName(newRecipe.getName());
@@ -69,4 +71,32 @@ public class RecipeManager implements Serializable {
         }
         //TODO photos update
     }
+
+    public Vector<Recipe> getRecipesByMealType(MealType chosenMealType, int prepTimeMin, int cookTimeMin) {
+        Vector<Recipe> retList = new Vector<>();
+
+        for (Recipe r : this.recipes) {
+            if((r.getType() == chosenMealType || chosenMealType == null)
+                    && r.getPrepTime().toMinutes() >= prepTimeMin
+                    && r.getCookTime().toMinutes() >= cookTimeMin)
+                retList.add(r);
+        }
+
+        return retList;
+    }
+
+    public Vector<Recipe> getFavRecipesByMealType(MealType chosenMealType, int prepTimeMin, int cookTimeMin) {
+        Vector<Recipe> retList = new Vector<>();
+
+        for (Recipe r : this.recipes) {
+            if(r.isFavourite()
+                    && (r.getType() == chosenMealType || chosenMealType == null)
+                    && r.getPrepTime().toMinutes() >= prepTimeMin
+                    && r.getCookTime().toMinutes() >= cookTimeMin)
+                retList.add(r);
+        }
+
+        return retList;
+    }
+
 }

@@ -4,8 +4,11 @@ import app.enums.MealType;
 import app.models.Instruction;
 import app.models.Recipe;
 import app.models.RecipeManager;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
@@ -15,15 +18,25 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import org.w3c.dom.Text;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
-import java.time.Duration;
+import java.util.Iterator;
 import java.util.ResourceBundle;
+import java.util.Vector;
 
 public class MainController implements Initializable {
     @FXML
@@ -39,21 +52,68 @@ public class MainController implements Initializable {
     private ListView listFavRecipes;
 
     @FXML
-    private TextField txtSearchAll;
+    private TextField searchAll;
 
     @FXML
-    private TextField txtSearchFav;
+    private TextField searchFav;
+
+    @FXML
+    private ImageView imageViewDetails;
+
+    @FXML
+    private ImageView imgFav;
+
+    @FXML
+    private Button btnNextImage;
+
+    @FXML
+    private Button btnPrevImage;
+
+    @FXML
+    private Label lblName;
+
+    @FXML
+    private Label lblDescription;
+
+    @FXML
+    private Label lblMealType;
+
+    @FXML
+    private Label lblPrepTime;
+
+    @FXML
+    private Label lblCookingTime;
+
+    @FXML
+    private ComboBox cmbMealType;
+
+    @FXML
+    private Label lblPrepTimeFilter;
+
+    @FXML
+    private Label lblCookTimeFilter;
+
+    @FXML
+    private Slider sliderPrepTime;
+
+    @FXML
+    private Slider sliderCookTime;
+
+    @FXML
+    private Button btnUndoFilter;
+
+    @FXML
+    private AnchorPane apDetailView;
+
+
+
 
     private ObservableList<Recipe> recipeAllObservableList;
     private ObservableList<Recipe> recipeFavObservableList;
-
-    private FilteredList<Recipe> filteredFavRecipes;
-    private FilteredList<Recipe> filteredAllRecipes;
-
-    private SortedList<Recipe> sortedAllRecipes;
-    private SortedList<Recipe> sortedFavRecipes;
-
+    private int currentImage = 0;
+    public static Recipe currentRecipe;
     private FXMLLoader mLLoader;
+    private Image defaultRecipeImage;
 
     public MainController() {
 
@@ -64,82 +124,164 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        initViewElements();
+        try {
+            initViewElements();
+            fillListViews();
+            updateDetailView();
+            setListViewContextMenu(listAllRecipes);
+            setListViewContextMenu(listFavRecipes);
+            initFilterElements();
+            searchListener();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    private void initViewElements() {
+    private void initViewElements() throws IOException {
+        FileInputStream input = new FileInputStream("appdata/images/dummy.png");
+        defaultRecipeImage = new Image(input, imageViewDetails.getFitWidth(), imageViewDetails.getFitHeight(), false, true);
+
+        input = new FileInputStream("appdata/images/star.png");
+        Image imageFav = new Image(input, imageViewDetails.getFitWidth(), imageViewDetails.getFitHeight(), false, true);
+        imgFav.setImage(imageFav);
+
         setInfoMessage("Welcome to COOK! - " + RecipeManager.getInstance().getRecipes().size() + " Recipes loaded");
-        setListViewContextMenu(listAllRecipes);
-        setListViewContextMenu(listFavRecipes);
-        fillListViews();
-        addSearchListener();
+
+        input.close();
     }
 
-    private void addSearchListener() {
-        filteredAllRecipes = new FilteredList<Recipe>(FXCollections.<Recipe>observableArrayList(RecipeManager.getInstance().getRecipes()));
+    private void searchListener() {
 
-        txtSearchAll.textProperty().addListener((observable, oldValue, newValue) -> {
-            filteredAllRecipes.setPredicate(recipe ->{
+        FilteredList<Recipe> allFiltered;
 
-                if(newValue == null || newValue.isEmpty()){
+        allFiltered = new FilteredList<Recipe>(FXCollections.observableArrayList(RecipeManager.getInstance().getRecipes()));
+
+        searchAll.textProperty().addListener((observable, oldValue, newValue) -> {
+            allFiltered.setPredicate(recipe -> {
+
+                if (newValue.isEmpty())
                     return true;
+
+                // search every attribute
+                if (recipe.getName().toLowerCase().contains(newValue.toLowerCase()))
+                    return true;
+                else if (recipe.getCookTime().toString().contains(newValue.toLowerCase()))
+                    return true;
+                else if (recipe.getPrepTime().toString().contains(newValue.toLowerCase()))
+                    return true;
+                else if (recipe.getDescription().toLowerCase().contains(newValue.toLowerCase()))
+                    return true;
+                else if (recipe.getType().toString().toLowerCase().contains(newValue.toLowerCase()))
+                    return true;
+
+                /* // search for instruction
+                Vector<Instruction> instructions = recipe.getCookInstructions();
+
+                // check every instruction for search term
+                for (int i = 0; i < recipe.getCookInstructions().size(); i++)
+                {
+                    if (instructions.get(i).getDescription().contains(newValue.toLowerCase()))
+                        return true;
+                    else if (instructions.get(i).getTask().contains(newValue.toLowerCase()))
+                        return true;
                 }
-
-                String lowerCaseFilter = newValue.toLowerCase();
-
-                if(recipe.getName().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                } else if(recipe.getDescription().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                } else if (recipe.getPrepTime().toString().contains(lowerCaseFilter)) {
-                    return true;
-                } else if (recipe.getCookTime().toString().contains(lowerCaseFilter)) {
-                    return true;
-                } else if (recipe.getType().toString().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                }
+                */
 
                 return false;
             });
         });
 
-        sortedAllRecipes = new SortedList<>(filteredAllRecipes);
-        listAllRecipes.setItems(sortedAllRecipes);
+        listAllRecipes.setItems(new SortedList<Recipe>(allFiltered));
 
-        FilteredList<Recipe> filteredFavRecipes = new FilteredList<Recipe>(FXCollections.<Recipe>observableArrayList(RecipeManager.getInstance().getFavRecipes()));
+        FilteredList<Recipe> favFiltered;
 
-        txtSearchFav.textProperty().addListener((observable, oldValue, newValue) -> {
-            filteredFavRecipes.setPredicate(recipe ->{
+        favFiltered = new FilteredList<Recipe>(FXCollections.observableArrayList(RecipeManager.getInstance().getFavRecipes()));
 
-                if(newValue == null || newValue.isEmpty()){
+        searchFav.textProperty().addListener((observable, oldValue, newValue) -> {
+            favFiltered.setPredicate(recipe -> {
+
+                // search every attribute
+                if (recipe.getName().toLowerCase().contains(newValue.toLowerCase()))
                     return true;
+                else if (recipe.getCookTime().toString().toLowerCase().contains(newValue.toLowerCase()))
+                    return true;
+                else if (recipe.getPrepTime().toString().toLowerCase().contains(newValue.toLowerCase()))
+                    return true;
+                else if (recipe.getDescription().toLowerCase().contains(newValue.toLowerCase()))
+                    return true;
+                else if (recipe.getType().toString().toLowerCase().contains(newValue.toLowerCase()))
+                    return true;
+
+                /* // search for instruction
+                Vector<Instruction> instructions = recipe.getCookInstructions();
+
+                // check every instruction for search term
+                for (int i = 0; i < recipe.getCookInstructions().size(); i++)
+                {
+                    if (instructions.get(i).getDescription().contains(newValue.toLowerCase()))
+                        return true;
+                    else if (instructions.get(i).getTask().contains(newValue.toLowerCase()))
+                        return true;
                 }
-
-                String lowerCaseFilter = newValue.toLowerCase();
-
-                if(recipe.getName().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                } else if(recipe.getDescription().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                } else if (recipe.getPrepTime().toString().contains(lowerCaseFilter)) {
-                    return true;
-                } else if (recipe.getCookTime().toString().contains(lowerCaseFilter)) {
-                    return true;
-                } else if (recipe.getType().toString().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                }
-
+                */
                 return false;
             });
         });
 
-        sortedFavRecipes = new SortedList<>(filteredFavRecipes);
-        listFavRecipes.setItems(sortedFavRecipes);
+        listFavRecipes.setItems(new SortedList<Recipe>(favFiltered));
+
     }
+
+
 
     private void fillListViews() {
         listAllRecipes.setCellFactory(recipeListView -> new RecipeListViewCell());
         listFavRecipes.setCellFactory(recipeListView -> new RecipeListViewCell());
+        searchListener();
+    }
+
+    private void initFilterElements() {
+        btnUndoFilter.setDisable(true);
+
+        ObservableList<MealType> mealTypes = FXCollections.observableArrayList(MealType.FISH, MealType.PORK, MealType.VEGAN, MealType.BEEF, MealType.CHICKEN, MealType.VEGETARIAN);
+        cmbMealType.setItems(mealTypes);
+
+        lblPrepTimeFilter.setText("PrepTime - " + String.valueOf(0));
+        sliderPrepTime.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov,
+                                Number old_val, Number new_val) {
+                lblPrepTimeFilter.setText("PrepTime - " + Math.round((Double) new_val));
+                filterRecipes();
+            }
+        });
+
+        lblCookTimeFilter.setText("CookTime - " + String.valueOf(0));
+
+        sliderCookTime.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov,
+                                Number old_val, Number new_val) {
+                lblCookTimeFilter.setText("CookTime - " + Math.round((Double) new_val));
+                filterRecipes();
+            }
+        });
+    }
+
+    private void updateDetailView() {
+        if(RecipeManager.getInstance().getRecipes().size() > 0) {
+            if(listAllRecipes.getSelectionModel().getSelectedItem() != null)
+            {
+                currentRecipe = (Recipe) listAllRecipes.getSelectionModel().getSelectedItem();
+            }else {
+                currentRecipe = RecipeManager.getInstance().getRecipes().firstElement();
+            }
+            displayCurrentRecipe();
+        }
+        else
+        {
+            apDetailView.setVisible(false);
+        }
     }
 
     private void setListViewContextMenu(ListView lv){
@@ -150,6 +292,7 @@ public class MainController implements Initializable {
 
         editItem.setOnAction((event) -> {
             openEditView((Recipe) lv.getSelectionModel().getSelectedItem());
+
         });
 
         deleteItem.setOnAction((event) -> {
@@ -161,12 +304,14 @@ public class MainController implements Initializable {
             }
             RecipeManager.getInstance().deleteRecipe(r);
             fillListViews();
+            updateDetailView();
         });
         contextMenu.getItems().addAll(editItem,deleteItem);
 
         lv.setContextMenu(contextMenu);
 
     }
+
 
     private void setInfoMessage(String msg) {
         lblMessage.setStyle("-fx-background-color:yellow; -fx-text-fill:black;");
@@ -184,8 +329,8 @@ public class MainController implements Initializable {
     }
 
     private void updateView() {
-        addSearchListener();    //TODO maybe other solution than adding the listener again :-)
-        setSuccessMessage("Data updated");
+        fillListViews();
+        setInfoMessage("Data updated");
     }
 
     public void onActionbtnAddRecipe(ActionEvent actionEvent) {
@@ -208,10 +353,119 @@ public class MainController implements Initializable {
                 updateView();
             });
 
-            stageAddView.show();
+            stageAddView.showAndWait();
+            displayCurrentRecipe();
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+    }
+
+    public void onActionBtnPrevImage(ActionEvent actionEvent) {
+        if(currentRecipe.getPhotos().size() > 1) {
+            if(currentImage <= 0)
+            {
+                currentImage = currentRecipe.getPhotos().size()-1;
+            }
+            else
+            {
+                currentImage--;
+            }
+            loadImage();
+        }
+    }
+
+    public void onActionBtnNextImage(ActionEvent actionEvent) {
+
+        if(currentRecipe.getPhotos().size() > 1) {
+            if(currentImage >= currentRecipe.getPhotos().size()-1)
+            {
+                currentImage = 0;
+            }
+            else
+            {
+                currentImage++;
+            }
+            loadImage();
+        }
+    }
+
+    private void loadImage() {
+        if (currentRecipe.getPhotos().size() > 0) {
+            try {
+                FileInputStream input = new FileInputStream(currentRecipe.getPhotos().elementAt(currentImage));
+                Image img = new Image(input, imageViewDetails.getFitWidth(), imageViewDetails.getFitHeight(), false, true);
+                imageViewDetails.setImage(img);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            imageViewDetails.setImage(defaultRecipeImage);
+        }
+    }
+
+    private void displayCurrentRecipe(){
+        apDetailView.setVisible(true);
+        lblName.setText(currentRecipe.getName());
+        lblMealType.setText(currentRecipe.getType().toString());
+        lblPrepTime.setText(currentRecipe.getPrepTime().toMinutes() + " min.");
+        lblCookingTime.setText(currentRecipe.getCookTime().toMinutes() + " min.");
+        lblDescription.setText(currentRecipe.getDescription());
+        currentImage = 0;
+
+        if(currentRecipe.isFavourite()){
+            imgFav.setVisible(true);
+        }else{
+            imgFav.setVisible(false);
+        }
+
+        loadImage();
+        //TODO display instructions??
+
+    }
+
+    public void onActionbtnUndoFilter(ActionEvent actionEvent) {
+        fillListViews();
+        btnUndoFilter.setDisable(true);
+        cmbMealType.setValue(null);
+        sliderCookTime.setValue(0);
+        sliderPrepTime.setValue(0);
+        setInfoMessage("Removed Filter");
+
+    }
+
+    public void onActionCmbMealType(ActionEvent actionEvent) {
+        if(cmbMealType.getSelectionModel().getSelectedItem() != null){
+            filterRecipes();
+        }
+
+    }
+
+    private void filterRecipes(){
+        btnUndoFilter.setDisable(false);
+        MealType chosenMealType = (MealType) cmbMealType.getSelectionModel().getSelectedItem();
+        int prepTimeMin = (int) Math.round(sliderPrepTime.getValue());
+        int cookTimeMin = (int) Math.round(sliderCookTime.getValue());
+        setSuccessMessage("Chosen filter option (MealType, PrepTime, CookTime): " + chosenMealType + " | " + prepTimeMin + " | " + cookTimeMin);
+
+        listAllRecipes.setItems(FXCollections.<Recipe>observableArrayList(RecipeManager.getInstance().getRecipesByMealType(chosenMealType, prepTimeMin, cookTimeMin)));
+        listFavRecipes.setItems(FXCollections.<Recipe>observableArrayList(RecipeManager.getInstance().getFavRecipesByMealType(chosenMealType, prepTimeMin, cookTimeMin)));
+    }
+
+    public void lvItemClicked(MouseEvent mouseEvent) {
+        currentRecipe = (Recipe) listAllRecipes.getSelectionModel().getSelectedItem();
+        if(currentRecipe != null){
+            displayCurrentRecipe();
+        }
+    }
+
+    public void lvItemFavClicked(MouseEvent mouseEvent) {
+        currentRecipe = (Recipe) listFavRecipes.getSelectionModel().getSelectedItem();
+        if(currentRecipe != null){
+            displayCurrentRecipe();
         }
     }
 
@@ -235,23 +489,11 @@ public class MainController implements Initializable {
                 updateView();
             });
 
-            stageEditView.show();
+            stageEditView.showAndWait();
+            displayCurrentRecipe();
 
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    private void printData() {
-        for (Recipe r : RecipeManager.getInstance().getRecipes()) {
-            System.out.println("====== [" + r.getName() + "] ======");
-            System.out.println(r);
-
-            for (Instruction i : r.getCookInstructions()) {
-                System.out.println(i);
-            }
-
-            System.out.println("=======================");
         }
     }
 }

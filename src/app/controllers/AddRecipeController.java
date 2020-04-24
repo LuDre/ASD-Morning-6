@@ -89,6 +89,24 @@ public class AddRecipeController implements Initializable {
 
     public AddRecipeController() {}
 
+    public AddRecipeController(Label lblMessage, TextField txtName, TextField txtDescription, Spinner spinType, Spinner spinPrepTime, Spinner spinCookTime, ToggleButton toggleFavourite, ToggleButton toggleGuideEnabled, Button btnSave, Button btnCancel, ImageView imageViewAdd, Button btnPrevImage, Button btnNextImage, Button btnAddImage, Button btnRemoveImage) {
+        this.lblMessage = lblMessage;
+        this.txtName = txtName;
+        this.txtDescription = txtDescription;
+        this.spinType = spinType;
+        this.spinPrepTime = spinPrepTime;
+        this.spinCookTime = spinCookTime;
+        this.toggleFavourite = toggleFavourite;
+        this.toggleGuideEnabled = toggleGuideEnabled;
+        this.btnSave = btnSave;
+        this.btnCancel = btnCancel;
+        this.imageViewAdd = imageViewAdd;
+        this.btnPrevImage = btnPrevImage;
+        this.btnNextImage = btnNextImage;
+        this.btnAddImage = btnAddImage;
+        this.btnRemoveImage = btnRemoveImage;
+    }
+
     @FXML
     private void initialize() {}
 
@@ -156,6 +174,7 @@ public class AddRecipeController implements Initializable {
         if (txtName.getText().isEmpty() || txtDescription.getText().isEmpty()) {
             setErrorMessage("Please enter some values in the text fields!");
         } else {
+
             tmpRecipe.setName(txtName.getText());
             tmpRecipe.setDescription(txtDescription.getText());
             tmpRecipe.setType((MealType) spinType.getValue());
@@ -166,7 +185,7 @@ public class AddRecipeController implements Initializable {
 
             for(int i = 0; i < bufferVec.size(); i++) {
                 try {
-                    String imageName = GlobalConstants.IMAGE_FOLDER_PATH + tmpRecipe.getId() + "_" + i;
+                    String imageName = GlobalConstants.IMAGE_FOLDER_PATH + tmpRecipe.getId() + "_" + i + ".png";
                     ImageIO.write(bufferVec.get(i), "png", new File(imageName));
                     tmpRecipe.addPhoto(imageName);
                 } catch (IOException e) {
@@ -177,7 +196,7 @@ public class AddRecipeController implements Initializable {
             RecipeManager.getInstance().addRecipe(tmpRecipe);
 
             setSuccessMessage("Added an new Recipe!");
-
+            MainController.currentRecipe = tmpRecipe;
             closeAddWindow();
         }
     }
@@ -186,7 +205,7 @@ public class AddRecipeController implements Initializable {
         closeAddWindow();
     }
 
-    private void closeAddWindow() {
+    public void closeAddWindow() {
         Stage stage = (Stage) lblMessage.getScene().getWindow();
         stage.close();
     }

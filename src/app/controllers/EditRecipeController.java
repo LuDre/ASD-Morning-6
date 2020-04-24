@@ -10,6 +10,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 import java.net.URL;
@@ -49,6 +50,24 @@ public class EditRecipeController implements Initializable {
     @FXML
     private Button btnCancel;
 
+    @FXML
+    private ImageView imageViewAdd;
+
+    @FXML
+    private Button btnPrevImage;
+
+    @FXML
+    private Button btnNextImage;
+
+    @FXML
+    private Button btnAddImage;
+
+    @FXML
+    private Button btnRemoveImage;
+
+    @FXML
+    private Label lblPicCount;
+
     private Recipe inRecipe;
 
     public EditRecipeController(Recipe paramRecipe) {
@@ -62,17 +81,32 @@ public class EditRecipeController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setInfoMessage("Welcome to edit! - " + inRecipe.getName());
 
+        initBtnListener();
         initDataFields();
+    }
+
+    private void initBtnListener() {
+        btnCancel.setOnAction(event -> { onActionBtnCancel(event); });
+        btnSave.setOnAction(event -> { onActionBtnSave(event); });
+        btnPrevImage.setOnAction(event -> { onActionBtnPrevImage(event); });
+        btnNextImage.setOnAction(event -> { onActionBtnNextImage(event); });
+        btnAddImage.setOnAction(event -> { onActionBtnAddImage(event); });
+        btnRemoveImage.setOnAction(event -> { onActionBtnRemoveImage(event); });
+    }
+
+    private void initMealTypeSpinner() {
+        ObservableList<MealType> mealTypes = FXCollections.observableArrayList(MealType.FISH, MealType.PORK, MealType.VEGAN, MealType.BEEF, MealType.CHICKEN, MealType.VEGETARIAN);
+        SpinnerValueFactory<MealType> valueFactory = new SpinnerValueFactory.ListSpinnerValueFactory<MealType>(mealTypes);
+        valueFactory.setValue(inRecipe.getType());
+        spinType.setValueFactory(valueFactory);
+        setInfoMessage("Fill in the shown fields to add a new recipe!");
     }
 
     private void initDataFields() {
         txtName.setText(inRecipe.getName());
         txtDescription.setText(inRecipe.getDescription());
 
-        ObservableList<MealType> mealTypes = FXCollections.observableArrayList(MealType.FISH, MealType.PORK, MealType.VEGAN, MealType.BEEF, MealType.CHICKEN, MealType.VEGETARIAN);
-        SpinnerValueFactory<MealType> valueFactory = new SpinnerValueFactory.ListSpinnerValueFactory<MealType>(mealTypes);
-        valueFactory.setValue(inRecipe.getType());
-        spinType.setValueFactory(valueFactory);
+        initMealTypeSpinner();
 
         spinPrepTime.getValueFactory().setValue((int)inRecipe.getPrepTime().toMinutes());
         spinCookTime.getValueFactory().setValue((int)inRecipe.getCookTime().toMinutes());
@@ -109,10 +143,9 @@ public class EditRecipeController implements Initializable {
             r.setGuideEnabled(toggleGuideEnabled.isSelected());
 
             //TODO Picture adding - file chooser etc.
-
             RecipeManager.getInstance().updateRecipe(inRecipe.getId(), r);
 
-            setSuccessMessage("Added an new Recipe!");
+            setSuccessMessage("Updated Recipe!");
 
             closeEditWindow();
         }
@@ -125,6 +158,22 @@ public class EditRecipeController implements Initializable {
     private void closeEditWindow() {
         Stage stage = (Stage) lblMessage.getScene().getWindow();
         stage.close();
+    }
+
+    public void onActionBtnPrevImage(ActionEvent actionEvent) {
+        //TODO
+    }
+
+    public void onActionBtnNextImage(ActionEvent actionEvent) {
+        //TODO
+    }
+
+    public void onActionBtnAddImage(ActionEvent actionEvent) {
+        //TODO
+    }
+
+    public void onActionBtnRemoveImage(ActionEvent actionEvent) {
+        //TODO
     }
 }
 
