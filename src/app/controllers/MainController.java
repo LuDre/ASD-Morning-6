@@ -1,14 +1,13 @@
 package app.controllers;
 
 import app.enums.MealType;
-import app.models.Instruction;
+import app.models.GlobalConstants;
 import app.models.Recipe;
 import app.models.RecipeManager;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
@@ -25,18 +24,12 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import org.w3c.dom.Text;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.ResourceBundle;
-import java.util.Vector;
 
 public class MainController implements Initializable {
     @FXML
@@ -105,18 +98,24 @@ public class MainController implements Initializable {
     @FXML
     private AnchorPane apDetailView;
 
-
-
-
     private ObservableList<Recipe> recipeAllObservableList;
     private ObservableList<Recipe> recipeFavObservableList;
     private int currentImage = 0;
     public static Recipe currentRecipe;
     private FXMLLoader mLLoader;
-    private Image defaultRecipeImage;
 
     public MainController() {
 
+    }
+
+    public MainController(Label lblMessage, ComboBox<MealType> cmbMealType, Slider sliderPrepTime, Slider sliderCookTime, ListView listAllRecipes, ListView listFavRecipes, Button btnUndoFilter) {
+        this.lblMessage = lblMessage;
+        this.cmbMealType = cmbMealType;
+        this.sliderPrepTime = sliderPrepTime;
+        this.sliderCookTime = sliderCookTime;
+        this.listAllRecipes = listAllRecipes;
+        this.listFavRecipes = listFavRecipes;
+        this.btnUndoFilter = btnUndoFilter;
     }
 
     @FXML
@@ -140,16 +139,10 @@ public class MainController implements Initializable {
     }
 
     private void initViewElements() throws IOException {
-        FileInputStream input = new FileInputStream("appdata/images/dummy.png");
-        defaultRecipeImage = new Image(input, imageViewDetails.getFitWidth(), imageViewDetails.getFitHeight(), false, true);
 
-        input = new FileInputStream("appdata/images/star.png");
-        Image imageFav = new Image(input, imageViewDetails.getFitWidth(), imageViewDetails.getFitHeight(), false, true);
-        imgFav.setImage(imageFav);
-
+        imgFav.setImage(GlobalConstants.getPhotoFromPath(GlobalConstants.FAV_IMAGE_PATH));
+        GlobalConstants.getPhotoFromPath(GlobalConstants.DUMMY_IMAGE_PATH);
         setInfoMessage("Welcome to COOK! - " + RecipeManager.getInstance().getRecipes().size() + " Recipes loaded");
-
-        input.close();
     }
 
     private void searchListener() {
@@ -248,7 +241,7 @@ public class MainController implements Initializable {
         ObservableList<MealType> mealTypes = FXCollections.observableArrayList(MealType.FISH, MealType.PORK, MealType.VEGAN, MealType.BEEF, MealType.CHICKEN, MealType.VEGETARIAN);
         cmbMealType.setItems(mealTypes);
 
-        lblPrepTimeFilter.setText("PrepTime - " + String.valueOf(0));
+        lblPrepTimeFilter.setText("PrepTime - " + 0);
         sliderPrepTime.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> ov,
                                 Number old_val, Number new_val) {
@@ -257,7 +250,7 @@ public class MainController implements Initializable {
             }
         });
 
-        lblCookTimeFilter.setText("CookTime - " + String.valueOf(0));
+        lblCookTimeFilter.setText("CookTime - " + 0);
 
         sliderCookTime.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> ov,
@@ -300,7 +293,7 @@ public class MainController implements Initializable {
             for(String s : r.getPhotos())
             {
                 File f = new File(s);
-                f.deleteOnExit();
+                f.delete();
             }
             RecipeManager.getInstance().deleteRecipe(r);
             fillListViews();
@@ -393,17 +386,10 @@ public class MainController implements Initializable {
 
     private void loadImage() {
         if (currentRecipe.getPhotos().size() > 0) {
-            try {
-                FileInputStream input = new FileInputStream(currentRecipe.getPhotos().elementAt(currentImage));
-                Image img = new Image(input, imageViewDetails.getFitWidth(), imageViewDetails.getFitHeight(), false, true);
-                imageViewDetails.setImage(img);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            imageViewDetails.setImage(GlobalConstants.getPhotoFromPath(currentRecipe.getPhotos().elementAt(currentImage)));
         }
         else {
-            imageViewDetails.setImage(defaultRecipeImage);
+            imageViewDetails.setImage(GlobalConstants.getPhotoFromPath(GlobalConstants.DUMMY_IMAGE_PATH));
         }
     }
 
@@ -444,7 +430,7 @@ public class MainController implements Initializable {
 
     }
 
-    private void filterRecipes(){
+    public void filterRecipes(){
         btnUndoFilter.setDisable(false);
         MealType chosenMealType = (MealType) cmbMealType.getSelectionModel().getSelectedItem();
         int prepTimeMin = (int) Math.round(sliderPrepTime.getValue());
