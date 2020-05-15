@@ -100,17 +100,26 @@
                         <Font size="13.0" />
                      </font></Label>
                   <ImageView fx:id="imgFav" fitHeight="40.0" fitWidth="40.0" layoutX="255.0" layoutY="374.0" pickOnBounds="true" preserveRatio="true" />
-                  <Button fx:id="btnModifyInstructions" layoutX="275.0" layoutY="621.0" mnemonicParsing="false" onAction="#onActionBtnModifyInstructions" text="Modify instructions" />
+                    <Button fx:id="btnModifyInstructions" layoutX="224.0" layoutY="639.0" mnemonicParsing="false" onAction="#onActionBtnModifyInstructions" prefHeight="45.0" prefWidth="142.0" text="Modify instructions" style="-fx-background-color: #FFC107;">
+                        <font>
+                            <Font name="System Bold" size="13.0" />
+                        </font>
+                    </Button>
+                    <Button fx:id="btnStartCooking" layoutX="755.0" layoutY="639.0" mnemonicParsing="false" onAction="#onActionBtnStartCooking" prefHeight="45.0" prefWidth="141.0" text="Start cooking!" style="-fx-background-color: #FFC107;">
+                        <font>
+                            <Font name="System Bold" size="13.0" />
+                        </font>
+                    </Button>
                 </children>
             </AnchorPane>
-            <HBox layoutX="276.0" layoutY="1.0" prefHeight="55.0" prefWidth="797.0">
+            <HBox layoutX="276.0" layoutY="1.0" prefHeight="55.0" prefWidth="1163.0" spacing="40.0">
                 <children>
                     <ComboBox fx:id="cmbMealType" onAction="#onActionCmbMealType" prefHeight="25.0" prefWidth="164.0" />
                     <Button fx:id="btnUndoFilter" mnemonicParsing="false" onAction="#onActionbtnUndoFilter" prefHeight="25.0" prefWidth="154.0" text="Undo Filter" />
-                    <Label fx:id="lblCookTimeFilter" prefHeight="17.0" prefWidth="123.0" text="Cooktime" />
+                    <Label fx:id="lblCookTimeFilter" alignment="CENTER" prefHeight="17.0" prefWidth="123.0" style="-fx-border-color: black;" text="Cooktime" />
                     <Slider fx:id="sliderCookTime" max="400.0" />
+                    <Label fx:id="lblPrepTimeFilter" alignment="CENTER" prefHeight="17.0" prefWidth="175.0" style="-fx-border-color: black;" text="Preptime" />
                     <Slider fx:id="sliderPrepTime" max="400.0" />
-                    <Label fx:id="lblPrepTimeFilter" prefHeight="17.0" prefWidth="175.0" text="Preptime" />
                 </children>
             </HBox>
          </children>

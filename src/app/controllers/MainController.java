@@ -96,6 +96,12 @@ public class MainController implements Initializable {
     private Button btnUndoFilter;
 
     @FXML
+    private Button btnStartCooking;
+
+    @FXML
+    private Button btnModifyInstructions;
+
+    @FXML
     private AnchorPane apDetailView;
 
     private ObservableList<Recipe> recipeAllObservableList;
@@ -139,7 +145,6 @@ public class MainController implements Initializable {
     }
 
     private void initViewElements() throws IOException {
-
         imgFav.setImage(GlobalConstants.getPhotoFromPath(GlobalConstants.FAV_IMAGE_PATH));
         GlobalConstants.getPhotoFromPath(GlobalConstants.DUMMY_IMAGE_PATH);
         setInfoMessage("Welcome to COOK! - " + RecipeManager.getInstance().getRecipes().size() + " Recipes loaded");
@@ -402,15 +407,21 @@ public class MainController implements Initializable {
         lblDescription.setText(currentRecipe.getDescription());
         currentImage = 0;
 
-        if(currentRecipe.isFavourite()){
+        if (currentRecipe.isFavourite())
             imgFav.setVisible(true);
-        }else{
+        else
             imgFav.setVisible(false);
-        }
 
         loadImage();
-        //TODO display instructions??
 
+        if (currentRecipe.isGuideEnabled()) {
+            btnModifyInstructions.setVisible(true);
+            btnStartCooking.setVisible(true);
+        }
+        else {
+            btnModifyInstructions.setVisible(false);
+            btnStartCooking.setVisible(false);
+        }
     }
 
     public void onActionbtnUndoFilter(ActionEvent actionEvent) {
@@ -506,6 +517,27 @@ public class MainController implements Initializable {
             stageEditView.showAndWait();
             displayCurrentRecipe();
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onActionBtnStartCooking(ActionEvent actionEvent) {
+        setInfoMessage("GUIDE window is open!");
+
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../../resources/views/stepGuide.fxml"));
+        Parent rootEditView = null;
+        try {
+            StepGuideController stepGuideController = new StepGuideController(currentRecipe);
+
+            fxmlLoader.setController(stepGuideController);
+            rootEditView = (Parent) fxmlLoader.load();
+            Stage stageGuideView = new Stage();
+            stageGuideView.initModality(Modality.APPLICATION_MODAL);
+            stageGuideView.setTitle("COOKING GUIDE");
+            stageGuideView.setResizable(false);
+            stageGuideView.setScene(new Scene(rootEditView));
+            stageGuideView.showAndWait();
         } catch (IOException e) {
             e.printStackTrace();
         }
