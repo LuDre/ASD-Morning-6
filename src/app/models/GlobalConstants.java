@@ -2,6 +2,7 @@ package app.models;
 
 import javafx.scene.image.Image;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -21,7 +22,7 @@ public class GlobalConstants
 
     private static Map<String, Image> IMAGES = new HashMap<>();
 
-    public static Image getPhotoFromPath(String path){
+    public static Image getPhotoFromPath(String path) {
         if(IMAGES.containsKey(path)){
             return IMAGES.get(path);
         }else
@@ -50,7 +51,13 @@ public class GlobalConstants
 
             return img;
         }
+    }
 
+    public static void removeImageFromMap(String key) {
+        File f = new File(key);
+        f.delete();
+
+        IMAGES.remove(key);
     }
 
 }

@@ -133,15 +133,6 @@ public class AddRecipeController implements Initializable {
         valueFactory.setValue(MealType.BEEF);
         spinType.setValueFactory(valueFactory);
         setInfoMessage("Fill in the shown fields to add a new recipe!");
-
-        initMealTypeSpinner();
-    }
-
-    private void initMealTypeSpinner() {
-        ObservableList<MealType> mealTypes = FXCollections.observableArrayList(MealType.FISH, MealType.PORK, MealType.VEGAN, MealType.BEEF, MealType.CHICKEN, MealType.VEGETARIAN);
-        SpinnerValueFactory<MealType> valueFactory = new SpinnerValueFactory.ListSpinnerValueFactory<MealType>(mealTypes);
-        valueFactory.setValue(MealType.BEEF);
-        spinType.setValueFactory(valueFactory);
     }
 
     private void setInfoMessage(String msg) {

@@ -423,6 +423,34 @@ public class MainController implements Initializable {
 
     }
 
+    public void onActionBtnModifyInstructions(ActionEvent actionEvent) {
+        setInfoMessage("Modify instructions window is open!");
+
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../../resources/views/editInstructions.fxml"));
+        Parent rootEditView = null;
+        try {
+            InstructionsController instructionsController = new InstructionsController(currentRecipe);
+
+            fxmlLoader.setController(instructionsController);
+            rootEditView = (Parent) fxmlLoader.load();
+            Stage stageInstructionsView = new Stage();
+            stageInstructionsView.initModality(Modality.APPLICATION_MODAL);
+            stageInstructionsView.setTitle("MODIFY INSTRUCTIONS");
+            stageInstructionsView.setResizable(false);
+            stageInstructionsView.setScene(new Scene(rootEditView));
+
+            stageInstructionsView.setOnHidden((WindowEvent event1) -> {
+                updateView();
+            });
+
+            stageInstructionsView.showAndWait();
+            displayCurrentRecipe();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void onActionCmbMealType(ActionEvent actionEvent) {
         if(cmbMealType.getSelectionModel().getSelectedItem() != null){
             filterRecipes();
