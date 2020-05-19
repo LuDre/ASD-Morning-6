@@ -58,6 +58,12 @@ public class InstructionsController implements Initializable {
     private Button btnRemoveImage;
 
     @FXML
+    private Button btnInstructionUp;
+
+    @FXML
+    private Button btnInstructionDown;
+
+    @FXML
     private ImageView imgInstruction;
 
     private Recipe inRecipe;
@@ -114,8 +120,18 @@ public class InstructionsController implements Initializable {
         listInstructions.setOnMouseClicked(event -> {
             lvItemClicked(event);
         });
-        btnSetImage.setOnAction(event -> { onActionBtnSetImage(event); });
-        btnRemoveImage.setOnAction(event -> { onActionBtnRemoveImage(event); });
+        btnSetImage.setOnAction(event -> {
+            onActionBtnSetImage(event);
+        });
+        btnRemoveImage.setOnAction(event -> {
+            onActionBtnRemoveImage(event);
+        });
+        btnInstructionUp.setOnAction(event -> {
+            onActionBtnInstructionUp(event);
+        });
+        btnInstructionDown.setOnAction(event -> {
+            onActionBtnInstructionDown(event);
+        });
     }
 
     private void setInfoMessage(String msg) {
@@ -133,7 +149,7 @@ public class InstructionsController implements Initializable {
         lblMessage.setText("SUCCESS --> " + msg);
     }
 
-    public void onActionBtnAdd(ActionEvent actionEvent) {
+    private void onActionBtnAdd(ActionEvent actionEvent) {
         updateCurrentInstruction();
 
         tmpInstructions.add(new Instruction("newTitle", "newDescription", ""));
@@ -147,32 +163,34 @@ public class InstructionsController implements Initializable {
         setSuccessMessage("New instruction added, please edit on the right side");
     }
 
-    public void onActionBtnDelete(ActionEvent actionEvent) {
-        GlobalConstants.removeImageFromMap(currentInstruction.getPhoto());
-        tmpInstructions.remove(currentInstruction);
-        currentInstruction = null;
+    private void onActionBtnDelete(ActionEvent actionEvent) {
+        if (currentInstruction != null) {
+            GlobalConstants.removeImageFromMap(currentInstruction.getPhoto());
+            tmpInstructions.remove(currentInstruction);
+            currentInstruction = null;
 
-        if (tmpInstructions.size() == 0) {
-            btnSetImage.setVisible(false);
-            btnRemoveImage.setVisible(false);
+            if (tmpInstructions.size() == 0) {
+                btnSetImage.setVisible(false);
+                btnRemoveImage.setVisible(false);
+            }
+
+            displayCurrentInstruction();
+
+            setErrorMessage("What has been done, cannot be undone. muahahahaha");
         }
-
-        displayCurrentInstruction();
-
-        setErrorMessage("What has been done, cannot be undone. muahahahaha");
     }
 
-    public void onActionBtnCancel(ActionEvent actionEvent) {
+    private void onActionBtnCancel(ActionEvent actionEvent) {
         updateCurrentInstruction();
         closeInstructionWindow();
     }
 
-    public void closeInstructionWindow() {
+    private void closeInstructionWindow() {
         Stage stage = (Stage) lblMessage.getScene().getWindow();
         stage.close();
     }
 
-    public void displayCurrentInstruction() {
+    private void displayCurrentInstruction() {
         if (currentInstruction != null) {
             txtTitle.setText(currentInstruction.getTask());
             txtAreaDescription.setText(currentInstruction.getDescription());
@@ -182,7 +200,6 @@ public class InstructionsController implements Initializable {
                 btnRemoveImage.setVisible(false);
             else
                 btnRemoveImage.setVisible(true);
-
         } else {
             txtTitle.setText("");
             txtAreaDescription.setText("");
@@ -190,7 +207,7 @@ public class InstructionsController implements Initializable {
         }
     }
 
-    public void lvItemClicked(MouseEvent mouseEvent) {
+    private void lvItemClicked(MouseEvent mouseEvent) {
         updateCurrentInstruction();
         currentInstruction = (Instruction) listInstructions.getSelectionModel().getSelectedItem();
         if (currentInstruction != null) {
@@ -201,14 +218,14 @@ public class InstructionsController implements Initializable {
         setSuccessMessage("Instruction updated!");
     }
 
-    public void updateCurrentInstruction() {
+    private void updateCurrentInstruction() {
         if (currentInstruction != null) {
             currentInstruction.setTask(txtTitle.getText());
             currentInstruction.setDescription(txtAreaDescription.getText());
         }
     }
 
-    public void onActionBtnSetImage(ActionEvent actionEvent) {
+    private void onActionBtnSetImage(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose Image");
         File file = fileChooser.showOpenDialog(btnSetImage.getScene().getWindow());
@@ -231,10 +248,57 @@ public class InstructionsController implements Initializable {
         btnRemoveImage.setVisible(true);
     }
 
-    public void onActionBtnRemoveImage(ActionEvent actionEvent) {
+    private void onActionBtnRemoveImage(ActionEvent actionEvent) {
         GlobalConstants.removeImageFromMap(currentInstruction.getPhoto());
         currentInstruction.setPhoto("");
         imgInstruction.setImage(GlobalConstants.getPhotoFromPath(currentInstruction.getPhoto()));
         btnRemoveImage.setVisible(false);
+    }
+
+    private void onActionBtnInstructionDown(ActionEvent event) {
+        int selectedIndex = listInstructions.getSelectionModel().getSelectedIndex();
+
+        if (selectedIndex != -1) {
+            selectedIndex++;
+
+            if (selectedIndex <= tmpInstructions.size() - 1) {
+                Instruction tmp = tmpInstructions.get(selectedIndex);
+                tmpInstructions.remove(selectedIndex);
+                tmpInstructions.add(selectedIndex - 1, tmp);
+
+                setSuccessMessage("Order successfully changed");
+
+                listInstructions.refresh();
+            } else {
+                setErrorMessage("Cannot push over the limits");
+            }
+        } else
+        {
+            setErrorMessage("Select item to change the order");
+        }
+    }
+
+    private void onActionBtnInstructionUp(ActionEvent event) {
+        int selectedIndex = listInstructions.getSelectionModel().getSelectedIndex();
+
+        if (selectedIndex != -1) {
+            Instruction tmp = tmpInstructions.get(selectedIndex);
+            selectedIndex--;
+
+            if (selectedIndex >= 0) {
+                tmpInstructions.remove(selectedIndex + 1);
+                tmpInstructions.add(selectedIndex, tmp);
+
+                listInstructions.getSelectionModel().select(selectedIndex);
+
+                setSuccessMessage("Order successfully changed");
+
+                listInstructions.refresh();
+            } else {
+                setErrorMessage("Cannot push over the limits");
+            }
+        } else {
+            setErrorMessage("Select item to change the order");
+        }
     }
 }

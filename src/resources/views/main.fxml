@@ -50,7 +50,7 @@
             <AnchorPane fx:id="apDetailView" layoutX="282.0" layoutY="55.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="735.0" prefWidth="1150.0" style="-fx-background-color: linen;">
                 <children>
                     <ImageView fx:id="imageViewDetails" fitHeight="270.0" fitWidth="360.0" layoutX="395.0" layoutY="78.0" pickOnBounds="true" preserveRatio="true" />
-                    <Button fx:id="btnPrevImage" layoutX="355.0" layoutY="183.0" maxWidth="100.0" minWidth="40.0" mnemonicParsing="false" onAction="#onActionBtnPrevImage" opacity="0.8" prefHeight="60.0" prefWidth="40.0" style="-fx-background-color: lightsteelblue; -fx-background-radius: 3;" text="◀">
+                    <Button fx:id="btnPrevImage" layoutX="340.0" layoutY="183.0" maxWidth="100.0" minWidth="40.0" mnemonicParsing="false" onAction="#onActionBtnPrevImage" opacity="0.8" prefHeight="60.0" prefWidth="55.0" style="-fx-background-color: lightsteelblue; -fx-background-radius: 3;" text="◀">
                      <font>
                         <Font name="System Bold" size="21.0" />
                      </font>
@@ -60,7 +60,7 @@
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor></Button>
-                    <Button fx:id="btnNextImage" layoutX="755.0" layoutY="183.0" maxWidth="100.0" minWidth="40.0" mnemonicParsing="false" onAction="#onActionBtnNextImage" opacity="0.8" prefHeight="60.0" prefWidth="40.0" style="-fx-background-color: lightsteelblue; -fx-background-radius: 3;" text="▶">
+                    <Button fx:id="btnNextImage" layoutX="755.0" layoutY="183.0" maxWidth="100.0" minWidth="40.0" mnemonicParsing="false" onAction="#onActionBtnNextImage" opacity="0.8" prefHeight="60.0" prefWidth="54.0" style="-fx-background-color: lightsteelblue; -fx-background-radius: 3;" text="▶">
                      <font>
                         <Font size="21.0" />
                      </font>
@@ -100,12 +100,12 @@
                         <Font size="13.0" />
                      </font></Label>
                   <ImageView fx:id="imgFav" fitHeight="40.0" fitWidth="40.0" layoutX="255.0" layoutY="374.0" pickOnBounds="true" preserveRatio="true" />
-                    <Button fx:id="btnModifyInstructions" layoutX="224.0" layoutY="639.0" mnemonicParsing="false" onAction="#onActionBtnModifyInstructions" prefHeight="45.0" prefWidth="142.0" text="Modify instructions" style="-fx-background-color: #FFC107;">
+                    <Button fx:id="btnModifyInstructions" layoutX="224.0" layoutY="639.0" mnemonicParsing="false" onAction="#onActionBtnModifyInstructions" prefHeight="45.0" prefWidth="142.0" style="-fx-background-color: #FFC107;" text="Modify instructions">
                         <font>
                             <Font name="System Bold" size="13.0" />
                         </font>
                     </Button>
-                    <Button fx:id="btnStartCooking" layoutX="755.0" layoutY="639.0" mnemonicParsing="false" onAction="#onActionBtnStartCooking" prefHeight="45.0" prefWidth="141.0" text="Start cooking!" style="-fx-background-color: #FFC107;">
+                    <Button fx:id="btnStartCooking" layoutX="755.0" layoutY="639.0" mnemonicParsing="false" onAction="#onActionBtnStartCooking" prefHeight="45.0" prefWidth="141.0" style="-fx-background-color: #FFC107;" text="Start cooking!">
                         <font>
                             <Font name="System Bold" size="13.0" />
                         </font>
